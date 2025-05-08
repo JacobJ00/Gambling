@@ -47,14 +47,14 @@ function addHistory(dice, interactionType, bet, resultOutcome) {
     Time: timestamp,
     IP: userIP,
     Choice: interactionType,
-    bet: bet || "",
+    Bet: bet || "",
     Dice: dice,
-    result: resultOutcome
+    Result: resultOutcome
   };
   history.push(record);
 
   const li = document.createElement("li");
-  li.textContent = `${record.Time} | IP: ${record.IP} | ${record.Choice} | ${record.bet} | 🎲 ${record.Dice} ➜ ${record.result}`;
+  li.textContent = `${record.Time} | IP: ${record.IP} | ${record.Choice} | ${record.Bet} | 🎲 ${record.Dice} ➜ ${record.Result}`;
   historyList.prepend(li);
 
   uploadHistoryToSheet(record);
