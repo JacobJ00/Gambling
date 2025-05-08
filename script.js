@@ -34,11 +34,11 @@ function uploadHistoryToSheet(record) {
 
   fetch("https://script.google.com/macros/s/AKfycbzuTVsvm1ui9ZvKoihAHGrcD36QF01KAVk7d9uetiqyR66uqeDn38lpN7J4N_0K9CMQ/exec", {
     method: "POST",
+    mode: "no-cors",
     body: formData
-  })
-    .then(res => res.text())
-    .then(msg => console.log("✅ 成功上传到 Google 表格:", msg))
-    .catch(err => console.error("❌ 上传失败", err));
+  });
+
+  console.log("✅ 数据已发送（无法确认响应）");
 }
 
 function addHistory(dice, interactionType, bet, resultOutcome) {
@@ -47,14 +47,14 @@ function addHistory(dice, interactionType, bet, resultOutcome) {
     Time: timestamp,
     IP: userIP,
     Choice: interactionType,
-    Bet: bet || "",
+    bet: bet || "",
     Dice: dice,
-    Result: resultOutcome
+    result: resultOutcome
   };
   history.push(record);
 
   const li = document.createElement("li");
-  li.textContent = `${record.Time} | IP: ${record.IP} | ${record.Choice} | ${record.Bet} | 🎲 ${record.Dice} ➜ ${record.Result}`;
+  li.textContent = `${record.Time} | IP: ${record.IP} | ${record.Choice} | ${record.bet} | 🎲 ${record.Dice} ➜ ${record.result}`;
   historyList.prepend(li);
 
   uploadHistoryToSheet(record);
@@ -110,7 +110,7 @@ viewBtn.addEventListener("click", () => {
   const values = [];
   for (let i = 0; i < 10; i++) values.push(rollDice());
   const val = values[Math.floor(Math.random() * 10)];
-  alert("🎲 过去10 次点数结果：\n" + values.join(", "));
+  alert("🎲 模拟 10 次点数结果：\n" + values.join(", "));
   addHistory(val, "浏览历史记录", "", "");
 });
 
