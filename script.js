@@ -28,20 +28,36 @@ function updateDiceVisual(value) {
   valueEl.textContent = value;
 }
 
-function addHistory(value, choice, outcome) {
+function uploadHistoryToSheet(record) {
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(record));
+
+  fetch("https://script.google.com/macros/s/AKfycbzuTVsvm1ui9ZvKoihAHGrcD36QF01KAVk7d9uetiqyR66uqeDn38lpN7J4N_0K9CMQ/exec", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => res.text())
+    .then(msg => console.log("✅ 成功上传到 Google 表格:", msg))
+    .catch(err => console.error("❌ 上传失败", err));
+}
+
+function addHistory(dice, interactionType, bet, resultOutcome) {
   const timestamp = new Date().toLocaleString();
   const record = {
-    time: timestamp,
-    ip: userIP,
-    choice,
-    dice: value,
-    result: outcome.replace(/[^赢输]/g, "")
+    Time: timestamp,
+    IP: userIP,
+    Choice: interactionType,
+    Bet: bet || "",
+    Dice: dice,
+    Result: resultOutcome
   };
   history.push(record);
 
   const li = document.createElement("li");
-  li.textContent = `${timestamp} | IP: ${userIP} | 选【${choice === 'big' ? '大' : '小'}】，点数：${value} ➜ ${record.result}`;
+  li.textContent = `${record.Time} | IP: ${record.IP} | ${record.Choice} | ${record.Bet} | 🎲 ${record.Dice} ➜ ${record.Result}`;
   historyList.prepend(li);
+
+  uploadHistoryToSheet(record);
 }
 
 function playRound() {
@@ -55,8 +71,7 @@ function playRound() {
 
   let counter = 0;
   const animation = setInterval(() => {
-    const temp = rollDice();
-    updateDiceVisual(temp);
+    updateDiceVisual(rollDice());
     counter++;
     if (counter >= 10) {
       clearInterval(animation);
@@ -66,14 +81,14 @@ function playRound() {
       const isSmall = value <= 3;
       let outcome = "";
       if ((isBig && playerChoice === "big") || (isSmall && playerChoice === "small")) {
-        outcome = "🎉 赢！";
+        outcome = "赢";
         resultEl.style.color = "green";
       } else {
-        outcome = "😢 输了！";
+        outcome = "输";
         resultEl.style.color = "red";
       }
       resultEl.textContent = outcome;
-      addHistory(value, playerChoice, outcome);
+      addHistory(value, "多摇一次", playerChoice === "big" ? "大" : "小", outcome);
     }
   }, 80);
 }
@@ -90,11 +105,15 @@ smallBtn.addEventListener("click", () => {
 });
 startBtn.addEventListener("click", playRound);
 againBtn.addEventListener("click", playRound);
+
 viewBtn.addEventListener("click", () => {
   const values = [];
   for (let i = 0; i < 10; i++) values.push(rollDice());
-  alert("🎲 模拟 10 次点数结果：\n" + values.join(", "));
+  const val = values[Math.floor(Math.random() * 10)];
+  alert("🎲 过去10 次点数结果：\n" + values.join(", "));
+  addHistory(val, "浏览历史记录", "", "");
 });
+
 downloadBtn.addEventListener("click", () => {
   if (history.length === 0) {
     alert("当前没有历史记录可以下载！");
