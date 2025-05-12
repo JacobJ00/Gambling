@@ -1,3 +1,4 @@
+
 const diceEl = document.getElementById("dice");
 const bigBtn = document.getElementById("big");
 const smallBtn = document.getElementById("small");
@@ -34,11 +35,18 @@ function uploadHistoryToSheet(record) {
 
   fetch("https://script.google.com/macros/s/AKfycbzuTVsvm1ui9ZvKoihAHGrcD36QF01KAVk7d9uetiqyR66uqeDn38lpN7J4N_0K9CMQ/exec", {
     method: "POST",
-    mode: "no-cors",
     body: formData
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log("✅ 数据已成功上传！");
+    } else {
+      console.error("上传失败: ", response.status);
+    }
+  })
+  .catch(error => {
+    console.error("请求错误: ", error);
   });
-
-  console.log("✅ 数据已发送（无法确认响应）");
 }
 
 function addHistory(dice, interactionType, bet, resultOutcome) {
@@ -47,9 +55,9 @@ function addHistory(dice, interactionType, bet, resultOutcome) {
     Time: timestamp,
     IP: userIP,
     Choice: interactionType,
-    Bet: bet || "",
+    bet: bet || "",
     Dice: dice,
-    Result: resultOutcome
+    result: resultOutcome
   };
   history.push(record);
 
